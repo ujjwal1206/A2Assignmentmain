@@ -1,0 +1,65 @@
+﻿@{
+    ViewBag.Title = "Home";
+}
+<h2>Welcome To Number Guessing Game</h2>
+
+<div>
+    <p>Lower Limit</p><input type="number" id="lowerlimit" />
+    <p>Upper Limit</p><input type="number" id="upperlimit" />
+    <button onclick="genSecretNumber()">Generate a Secret Number</button>
+    <label id="secnumberis"></label>
+</div>
+<br />
+<br />
+<div>
+    <p>Make a Guess</p><input type="number" id="makeGuess" />
+    <button onclick="play()">Play</button>
+    <br />
+    <br />
+    <br />
+    <p><strong>Attempts:</strong><span id="playCount">0</span></p>
+    <label>The number is:</label>
+    <label id="numberis"></label>
+
+</div>
+
+<script>
+    let secNum = "";
+    async function genSecretNumber() {
+        let x = document.getElementById("lowerlimit").value;
+        let y = document.getElementById("upperlimit").value;
+
+        let response = await fetch('@Url.Action("SecretNumberAsync", "Home")', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ x: parseInt(x), y: parseInt(y) })
+        });
+
+        let data = await response.json();
+        secNum =  data.result;
+        //secNum= document.getElementById("secnumberis").innerText = data.result;
+    }
+
+    let playCount = localStorage.getItem("playCount") ? parseInt(localStorage.getItem("playCount")) : 0;
+    document.getElementById("playCount").innerText = playCount;
+
+    async function play() {
+
+        playCount++;
+        let x = document.getElementById("makeGuess").value;
+
+        let response = await fetch('@Url.Action("CheckNumberAsync", "Home")', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ x: parseInt(x), y: parseInt(secNum) })
+
+        });
+        let data = await response.json();
+         document.getElementById("numberis").innerText = data.result;
+        document.getElementById("playCount").innerText = playCount;
+
+    }
+</script>
+
+
+
